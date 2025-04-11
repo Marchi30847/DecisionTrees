@@ -169,13 +169,7 @@ public class TreeBuilder {
             curNode.addChild(branchName, node);
         }
 
-        List<String> parameterValues = getParameterValues(nodeValue);
-
-        if (parameterValues.isEmpty()) {
-            return;
-        }
-
-        for (String val : parameterValues) {
+        for (String val : getParameterValues(nodeValue)) {
             List<LabeledData> filtered = filterByParamValue(curData, nodeValue, val);
 
             if (filtered.isEmpty()) {
