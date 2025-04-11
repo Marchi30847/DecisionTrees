@@ -156,6 +156,10 @@ public class TreeBuilder {
      * @param branchName  the branch label that leads to this node (null for the root)
      */
     private void build(List<LabeledData> curData, List<String> curParams, TreeNode curNode, String branchName) {
+        if (curParams.isEmpty() || curData.isEmpty()) {
+            return;
+        }
+
         String nodeValue = chooseBestNode(curData, curParams);
         TreeNode node = new TreeNode(nodeValue);
 
@@ -165,10 +169,20 @@ public class TreeBuilder {
             curNode.addChild(branchName, node);
         }
 
-        for (String val : getParameterValues(nodeValue)) {
+        List<String> parameterValues = getParameterValues(nodeValue);
+
+        if (parameterValues.isEmpty()) {
+            return;
+        }
+
+        for (String val : parameterValues) {
             List<LabeledData> filtered = filterByParamValue(curData, nodeValue, val);
 
-            if (calculateEntropyForParam(filtered, nodeValue) < entropyThreshold) {
+            if (filtered.isEmpty()) {
+                continue;
+            }
+
+            if (calculateEntropyForParam(filtered, nodeValue) <= entropyThreshold) {
                 String label = getDominantLabelForParamValue(filtered, nodeValue, val);
                 TreeNode child = new TreeNode(label);
                 node.addChild(val, child);
@@ -182,6 +196,8 @@ public class TreeBuilder {
             build(filtered, newParams, node, val);
         }
     }
+
+
 
     /**
      * Calculates the base-2 logarithm of a given number.
